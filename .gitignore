@@ -1,4 +1,11 @@
 
 # pixi environments
 .pixi
+.notebooks
 *.egg-info
+src/pywebview/__pycache__
+
+# Data files
+*.csv
+*.xlsx
+*.xls

@@ -28,13 +28,25 @@ error_data = [
     '46.9', '84.8', '120', '103', '36.7', '92.7', '32.8', '73.8', '214', '65.3'
 ]
 
-model = SEGInformedVarLognormal(data = error_data, oel = 100, error_mode='CV')
+analysis_config = {
+    "probacred": 80,
+    "frac_threshold": 10,
+    "target_perc": 95
+}
+
+## Check if lognormal data is within limits of model
+data_check = utils.check_lognormal_data(data = np.array(error_data).astype(float), oel = 100)
+print(data_check)
+
+model = SEGInformedVarLognormal(data = error_data, oel = 100, error_mode='CV', analysis_config=analysis_config)
 
 # test if error mode is correctly set
 
-model.build_model()
-model.sample_model()
+model.fit()
 model.analyse_chains()
 
 print(model.analysis)
-print(model.id)
+
+# Check divergences
+divergences = utils.inspect_divergent_traces(model)
+print(divergences)

@@ -1,5 +1,7 @@
 # pyWebExpo
 
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+
 **pyWebExpo** is a Python library for Bayesian analysis of occupational and industrial hygiene exposure data. It is a modernised derivative of the [WebExpo](https://webexpo.net/) project, built on [PyMC](https://www.pymc.io/) for probabilistic modelling and [JAX](https://jax.readthedocs.io/) (via Numpyro / Blackjax) for fast NUTS sampling.
 
 ---
@@ -255,6 +257,12 @@ class CustomModel(WebExpoModel):
     @staticmethod
     def get_default_analysis_config(): return {}
 ```
+
+---
+
+## Licence
+
+This project is licensed under the [Apache License 2.0](LICENSE).
 
 ---
 

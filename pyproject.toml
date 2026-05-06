@@ -1,0 +1,15 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pywebexpo"
+version = "0.1.0"
+description = "Bayesian analysis of occupational exposure data using PyMC"
+requires-python = ">=3.10"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pywebexpo"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

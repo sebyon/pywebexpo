@@ -1,112 +1,96 @@
 from dataclasses import dataclass
-from typing import List, Optional, overload
+from typing import overload
+import logging
 import numpy as np
-from logging import Logger
 
-logger = Logger(__name__)
+logger = logging.getLogger(__name__)
+
 
 @dataclass
 class WebExpoData:
     """
-    Dataclass for the observed data in the WebExpo format. The data is stored as a list of values,
-    with the corresponding lower and upper limits for each value. The data can be left-censored,
-    right-censored, interval-censored, or uncensored.
+    Observed data in WebExpo format with per-value censoring bounds.
 
-    Additionally, the worker_id parameter can be used to specify the worker ID for each data point
-    for the Between-Worker models.
+    Supports left-censored ('<'), right-censored ('>'), interval-censored ('lower-upper'),
+    and uncensored values. worker_id is only used by Between-Worker models.
     """
-    y: List[float]
-    worker_id: Optional[List[str]]
-    lower_limits: List[float]
-    upper_limits: List[float]
+
+    y: list[float]
+    worker_id: list[str | None] | None
+    lower_limits: list[float]
+    upper_limits: list[float]
 
     def __post_init__(self):
         if len(self.y) != len(self.lower_limits) or len(self.y) != len(self.upper_limits):
             raise ValueError("The lengths of y, lower_limits, and upper_limits must be equal.")
-            
+
         if self.worker_id is not None and len(self.y) != len(self.worker_id):
             raise ValueError("The lengths of y and worker_id must be equal.")
-            
+
         if self.worker_id is None:
             self.worker_id = [None] * len(self.y)
 
 
 # No worker ID / SEG models
 @overload
-def define_observed_lower_upper(expo_data: List[str], oel: float, worker_id: None = None) -> WebExpoData: ...
+def define_observed_lower_upper(expo_data: list[str], oel: float, worker_id: None = None) -> WebExpoData: ...
 
-# Worker ID / Between Worker models
+# Worker ID / Between-Worker models
 @overload
-def define_observed_lower_upper(expo_data: List[str], oel: float, worker_id: List[str]) -> WebExpoData: ...
+def define_observed_lower_upper(expo_data: list[str], oel: float, worker_id: list[str]) -> WebExpoData: ...
 
 
 def define_observed_lower_upper(
-    expo_data: List[str], 
-    oel: float, 
-    worker_id: Optional[List[str]] = None
+    expo_data: list[str],
+    oel: float,
+    worker_id: list[str] | None = None,
 ) -> WebExpoData:
     """
-    Define the observed data in the WebExpo format. The data is stored as a list of values,
-    with the corresponding lower and upper limits for each value. The data can be left-censored,
-    right-censored, interval-censored, or uncensored.
+    Parse WebExpo-format strings into observed values and censoring bounds, scaled by OEL.
 
-    The use of '<' and '>' symbols is used to denote left-censored and right-censored data,
-    respectively. The '-' symbol is used to denote interval-censored data.
-
-    Additionally, the worker_id parameter can be used to specify the worker ID for each data point
-    for the Between-Worker models.
+    Censoring notation:
+    - '<value'    — left-censored
+    - '>value'    — right-censored
+    - 'low-high'  — interval-censored
+    - numeric     — uncensored
 
     Parameters
     ----------
-    expo_data : List[str]
-        The observed data values in the WebExpo format.
+    expo_data : list[str]
+        Observed data values in WebExpo format.
     oel : float
-        The occupational exposure limit (OEL) for the data.
-    worker_id : Optional[List[str]]
-        The worker ID for each data point. If None, the worker ID is not used.
+        Occupational exposure limit used to scale values.
+    worker_id : list[str] | None
+        Worker IDs for Between-Worker models. None for SEG models.
 
     Returns
     -------
     WebExpoData
-        The observed data in the WebExpo format.
+        Parsed and OEL-scaled data with censoring bounds.
     """
     y = []
     lower_limits = []
     upper_limits = []
 
-    # Process each value only once.
     for value in expo_data:
         if value.startswith('<'):
-            # Left-censored: use the limit as the measurement and set the upper limit to infinity.
             limit = float(value[1:])
-            y_val = limit
-            lower_val = limit
-            upper_val = np.inf
+            y_val, lower_val, upper_val = limit, limit, np.inf
         elif value.startswith('>'):
-            # Right-censored: use the limit as the measurement and set the lower limit to -infinity.
             limit = float(value[1:])
-            y_val = limit
-            lower_val = -np.inf
-            upper_val = limit
+            y_val, lower_val, upper_val = limit, -np.inf, limit
         elif '-' in value and not value.startswith('-'):
-            # Interval-censored: split into lower and upper limits.
             lower_val, upper_val = map(float, value.split('-', 1))
             y_val = (lower_val + upper_val) / 2
         else:
-            # Uncensored: assign the value with infinite bounds.
             y_val = float(value)
-            lower_val = -np.inf
-            upper_val = np.inf
+            lower_val, upper_val = -np.inf, np.inf
 
         y.append(y_val)
         lower_limits.append(lower_val)
         upper_limits.append(upper_val)
 
-    # Pre-calculate the reciprocal of the OEL for scaling.
     inv_oel = 1 / oel
-
-    # Scale the values by the OEL.
-    # Dividing infinities by a finite positive number leaves them unchanged.
     y = [val * inv_oel for val in y]
     lower_limits = [val * inv_oel for val in lower_limits]
     upper_limits = [val * inv_oel for val in upper_limits]

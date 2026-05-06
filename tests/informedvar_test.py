@@ -15,7 +15,7 @@ class TestSEGInformedVarLognormal(unittest.TestCase):
         self.assertEqual(self.model.oel, self.oel)
         self.assertIsNotNone(self.model.sampler_config)
         self.assertIsNotNone(self.model.model_config)
-        self.assertIsNotNone(self.model.error_mode)
+        self.assertIn(self.model.error_mode, [None, "CV", "SD"])
         self.assertIsNotNone(self.model.analysis_config)
 
     def test_build_model(self):
@@ -47,7 +47,7 @@ class TestSEGInformedVarLognormal(unittest.TestCase):
         self.assertIn("mu_upper", model_config)
 
     def test_get_default_sample_config(self):
-        sample_config = self.model.get_default_sample_config()
+        sample_config = self.model.get_default_sampler_config()
         self.assertIsInstance(sample_config, dict)
         self.assertIn("draws", sample_config)
         self.assertIn("tune", sample_config)

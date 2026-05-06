@@ -8,7 +8,13 @@ __pycache__/
 # pixi environments
 .pixi
 *.egg-info
-src/pywebview/__pycache__
+
+# Claude Code local data
+.claude/
+
+# Generated README previews
+README.html
+README_files/
 
 # Data files
 *.csv

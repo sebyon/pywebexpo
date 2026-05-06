@@ -3,7 +3,7 @@
 [![Tests](https://github.com/sebyon/pywebexpo/actions/workflows/tests.yml/badge.svg)](https://github.com/sebyon/pywebexpo/actions/workflows/tests.yml)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
-**pyWebExpo** is a Python library for Bayesian analysis of occupational and industrial hygiene exposure data. It is a modernised derivative of the [WebExpo](https://webexpo.net/) project, built on [PyMC](https://www.pymc.io/) for probabilistic modelling and [JAX](https://jax.readthedocs.io/) (via Numpyro / Blackjax) for fast NUTS sampling.
+**pyWebExpo** is a Python library for Bayesian analysis of occupational and industrial hygiene exposure data. It is a modernised derivative of the [WebExpo](https://github.com/webexpo) project, originally created by Jérôme Lavoué, built on [PyMC](https://www.pymc.io/) for probabilistic modelling and [JAX](https://jax.readthedocs.io/) (via Numpyro / Blackjax) for fast NUTS sampling.
 
 ---
 
@@ -25,6 +25,7 @@
     - [Divergence Diagnostics](#divergence-diagnostics)
     - [ArviZ Integration](#arviz-integration)
     - [Custom Models](#custom-models)
+  - [Licence](#licence)
   - [Analysis Output Reference](#analysis-output-reference)
 
 ---
